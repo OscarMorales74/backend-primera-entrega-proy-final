@@ -1,8 +1,11 @@
 import fs from 'fs';
+//agregue estas lineas
+import Path from '../path.js'
+const path = Path
 
 export default class ProductManager{
-    constructor(path){
-        this.path = path;
+    constructor(){//cambie
+        this.pathProducts = `${path}/api/products.json`;//cambie
     }
 
     async #getNextId(){
@@ -15,13 +18,13 @@ export default class ProductManager{
     }
     async getProducts(limit){
         try {
-            if(fs.existsSync(this.path)){
-                const products = await fs.promises.readFile(this.path, 'utf8');
-                const productsJSON = JSON.parse(products);
+            if(fs.existsSync(this.pathProducts)){//agregue Products a path
+                const productsJSON = await fs.promises.readFile(this.pathProducts, 'utf8');//agregue Products a path y JSON a products
+                const products = JSON.parse(productsJSON);//quite JSON a la variable products y lo agregue al parametro products
                 if (limit) {
-                    return productsJSON.slice(0, limit);
+                    return products.slice(0, limit);//quite JSON a products
                 } else {
-                    return productsJSON;
+                    return products;//quite JSON a products
                 }
             } else {
                 return []
@@ -50,7 +53,7 @@ export default class ProductManager{
             };
             const productsFile = await this.getProducts();
             productsFile.push(product);
-            await fs.promises.writeFile(this.path, JSON.stringify(productsFile));
+            await fs.promises.writeFile(this.pathProducts, JSON.stringify(productsFile));//agregue Products a path
             return product;
         } catch (error) {
             console.log(error);
@@ -67,7 +70,7 @@ export default class ProductManager{
             } else {
                 productsFile[index] = { pid, ...obj }
             }
-            await fs.promises.writeFile(this.path, JSON.stringify(productsFile));
+            await fs.promises.writeFile(this.pathProducts, JSON.stringify(productsFile));//agregue Products a path
         } catch (error) {
             console.log(error);
         }
@@ -77,7 +80,7 @@ export default class ProductManager{
             const productsFile = await this.getProducts();
             if(productsFile.length > 0){    
                 const newArray = productsFile.filter(prod => prod.pid !== pid);
-                await fs.promises.writeFile(this.path, JSON.stringify(newArray));
+                await fs.promises.writeFile(this.pathProducts, JSON.stringify(newArray));//agregue Products a path
             } else {
                 throw new Error(`Producto con id: ${pid} no encontrado`);
             }
@@ -87,8 +90,8 @@ export default class ProductManager{
     }
     async deleteAllProducts(){
         try {
-            if(fs.existsSync(this.path)){
-                await fs.promises.unlink(this.path)
+            if(fs.existsSync(this.pathProducts)){
+                await fs.promises.unlink(this.pathProducts)//agregue Products a path 2 veces
             }
         } catch (error) {
             console.log(error);

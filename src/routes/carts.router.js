@@ -1,7 +1,19 @@
 import { Router } from 'express';
 const router = Router();
 import CartManager from '../manager/cart.manager.js';
-const cartManager = new CartManager('./carts.json');
+const cartManager = new CartManager();
+
+// Listar todos los carritos
+router.get('/', async(req, res)=>{
+  try {
+      const cartFile = await cartManager.getCarts();
+      res.status(200).json(cartFile);
+  } catch (error) {
+      res.status(404).json({ message: error.message });
+  };
+});
+
+
 
 // Listar los productos del carrito con el cid proporcionado
 router.get('/:cid', async (req, res) => {
@@ -25,8 +37,19 @@ router.get('/:cid', async (req, res) => {
     }
   });
 
+// Crear un nuevo carrito
+router.post('/', async(req, res)=>{
+  try {
+      const newCart = await cartManager.createCart();
+      res.status(201).json(newCart);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  };
+});
+
+
   // Agregar un producto al carrito con el cid y pid proporcionados
-router.post('/:cid/product/:pid', async (req, res) => {
+router.post('/:cid/product/:pid', async (req, res) => {//antes "'/:cid/product/:pid'"
     const cid = parseInt(req.params.cid);
     const pid = parseInt(req.params.pid);
     try {

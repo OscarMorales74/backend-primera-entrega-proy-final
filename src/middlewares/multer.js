@@ -1,14 +1,13 @@
 import multer from 'multer';
-import { __dirname } from '../path.js';
+import Path from '../path.js';//saque __ a dirname
+const path = Path
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, __dirname + '/public/images')
+      cb(null, path + '/public/images')//saque __ a dirname
     },
     filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix)
-    //   cb(null, file.originalname)
+      cb(null, file.originalname)
     }
   })
   

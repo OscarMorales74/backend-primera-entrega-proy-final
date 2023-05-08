@@ -2,8 +2,8 @@
 //instanciamos clase Router con una variable
 import { Router } from "express";
 const router = Router();
-import ProductManager from '../manager/products.manager.js';//ojo con los dos puntos
-const productManager = new ProductManager('./products.json');
+import ProductManager from '../manager/products.manager.js';
+const productManager = new ProductManager();
 import { productValidator } from "../middlewares/productValidator.js";
 import { uploader } from "../middlewares/multer.js";
 
@@ -45,7 +45,7 @@ router.post('/', productValidator, async(req, res) =>{
     }
 });
 
-//cargar un producto con multer
+// cargar un producto con multer
 router.post('/test-multer', uploader.single('thumbnail'), async(req, res) =>{
     try {
         console.log( req.file);
