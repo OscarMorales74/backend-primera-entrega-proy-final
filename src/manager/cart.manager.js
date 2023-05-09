@@ -67,20 +67,35 @@ export default class CartManager {
     //     }
     //   }
 
-      async createCart(cid){
+    //   async createCart(cid){
+    //     try {
+    //         let newCart = [];
+    //         if(cid){
+    //             newCart = {
+    //                 cid: cid,
+    //                 products : []
+    //             };
+    //         }else{
+    //             newCart = {
+    //                 cid: await this.#getNextCartId(0),
+    //                 products : []
+    //             };
+    //         }
+    //         const cartsFile = await this.getCarts();
+    //         cartsFile.push(newCart);
+    //         await fs.promises.writeFile(this.pathCart, JSON.stringify(cartsFile));
+    //         return newCart;
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+    async createCart(cid){
         try {
             let newCart = [];
-            if(cid){
-                newCart = {
+            newCart = {
                     cid: await this.#getNextCartId() + 1,
                     products : []
-                };
-            }else{
-                newCart = {
-                    id: productManager.generateId(),
-                    products : []
-                };
-            }
+            };
             const cartsFile = await this.getCarts();
             cartsFile.push(newCart);
             await fs.promises.writeFile(this.pathCart, JSON.stringify(cartsFile));
@@ -91,40 +106,6 @@ export default class CartManager {
     }
 
     
-
-    // async createCart() {
-    //     try {
-    //         const cartsFile = await this.getCarts();
-    //         const cid = cartsFile.length > 0 ? cartsFile[cartsFile.length - 1].cid + 1 : 1;
-    //         const cart = {
-    //             cid,
-    //             products: []
-    //         };
-    //         cartsFile.push(cart);
-    //         await fs.promises.writeFile(this.pathCart, JSON.stringify(cartsFile));
-    //         return cart;
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-    
-
-
-    // async createCart() {
-    //     try {
-    //          const cart = {
-    //             cid: await this.#getNextCartId() + 1,
-    //             products: []
-    //         };
-    //         const cartsFile = await this.getCarts();
-    //         cartsFile.push(cart);
-    //         await fs.promises.writeFile(this.pathCart, JSON.stringify(cartsFile));
-    //         return cart;
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
     async addProductToCart(pid, cid) {
         try {
             //busco carrito y lo guardo en cart
@@ -134,7 +115,11 @@ export default class CartManager {
                 if (productIndex !== -1) {
                     cart.products[productIndex].quantity += 1;
                 } else {
-                    cart.products.push({ product: pid, quantity: 1 });
+                    cart.products.push(
+                        { 
+                        id: product.pid,
+                        quantity: 1
+                    });
                 }
                 const cartsFile = await this.getCarts();
                 const index = cartsFile.findIndex(crt => crt.cid === cid);
@@ -156,16 +141,6 @@ export default class CartManager {
                 await fs.promises.writeFile(this.pathCart, JSON.stringify(newArray));
             } else {
                 throw new Error(`Cart with id: ${cid} not found`);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    async deleteAllCarts() {
-        try {
-            if (fs.existsSync(this.pathCart)) {
-                await fs.promises.unlink(this.pathCart);
             }
         } catch (error) {
             console.log(error);
