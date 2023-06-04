@@ -1,11 +1,10 @@
-//importamos el modulo Router desde express
-//instanciamos clase Router con una variable
 import { Router } from "express";
 const router = Router();
 import ProductManager from '../manager/products.manager.js';
 const productManager = new ProductManager();
 import { productValidator } from "../middlewares/productValidator.js";
 import { uploader } from "../middlewares/multer.js";
+
 
 router.get('/', async(req, res) => {
     const { limit } = req.query;
@@ -61,7 +60,7 @@ router.post('/test-multer', uploader.single('thumbnail'), async(req, res) =>{
 //modificar producto
 router.put('/:pid', async(req, res) =>{
     try {
-        const { name, price, stock } = req.body;
+        const { title, description, price, status, stock, category } = req.body;
         const product = req.body;
         const { pid } = req.params;
         const productsFile = await productManager.getProductById(Number(pid));

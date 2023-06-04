@@ -59,7 +59,6 @@ export default class ProductManager{
             console.log(error);
         }
     }
-
     async updateProduct(obj, pid){
         try {
             const productsFile = await this.getProducts();
