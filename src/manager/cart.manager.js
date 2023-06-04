@@ -38,13 +38,15 @@ export default class CartManager {
     async getCartById(cid) {
         try {
             const carts = await this.getCarts();
-            let cartGet = carts.find(cartIt => cartIt.id === cid);
-            if(cartGet) {
-                return cartGet
+            let cartGet = carts.find(cartIt => cartIt.cid == cid);
+            if (cartGet) {
+                return cartGet;
+            } else {
+                throw new Error(`Carrito ${cid} no encontrado en manager.`);
             }
-            return false;
         } catch (error) {
             console.log(error);
+            throw error;
         }
     }
     
@@ -70,69 +72,50 @@ export default class CartManager {
             console.log(error)
         }
     }
-    
-    async findProdInCart(cid, pid) {
-        try {
-            const findCart = await this.getCartById(cid)
-            if(findCart) {
-                const products = findCart.products
-                const findProducts = products.find(prodIt => prodIt.pid === pid);
-                if (findProducts){
-                    return findProducts;
-                } else {
-                    return null;
-                }
-            }else{
-                return null
-            }
-        } catch (error) {
-            console.log(error);            
-        }
-    }
-    
+        
     async addProductToCart(pid, cid) {
         try {
-            //busco carrito y lo guardo en cart
-            const prodFindInProducts = await productManager.getProductById(pid)
-            console.log(prodFindInProducts)
-            if(prodFindInProducts){
-                const cartToAdd = await this.getCartById(cid)
-                let carts = await this.getCarts();
-                let productFound = await this.findProdInCart(cid, pid);
-                if(productFound === null){
-                    productFound = {
-                        pid: pid,
-                        quantity: 1
-                    }
-                    cartToAdd.products.push(productFound)
-                } else {
-                    productFound.quantity = productFound.quantity + 1
-                    cartToAdd.products = cartToAdd.products.filter( prod => prod.pid !== pid)
-                    cartToAdd.products.push(productFound)
-                }
-                carts = carts.filter(cart => cart.cid !== cid)
-                carts.push(cartToAdd)
-                await fs.promises.writeFile(this.pathCart, JSON.stringify(carts));
-                return productFound.pid
+          const prodFindInProducts = await productManager.getProductById(pid);
+          if (prodFindInProducts) {
+            let carts = await this.getCarts();
+            const cartIndex = carts.findIndex(cart => cart.cid === parseInt(cid));
+      
+            if (cartIndex === -1) {
+              // El carrito no existe, se crea uno nuevo
+              const newCart = {
+                cid: parseInt(cid),
+                products: [
+                  {
+                    pid: pid,
+                    quantity: 1
+                  }
+                ]
+              };
+              carts.push(newCart);
             } else {
-                return null;
+              // El carrito existe, se agrega o actualiza el producto
+              const cart = carts[cartIndex];
+              const productIndex = cart.products.findIndex(prod => prod.pid === pid);
+      
+              if (productIndex === -1) {
+                // El producto no está en el carrito, se agrega
+                cart.products.push({
+                  pid: pid,
+                  quantity: 1
+                });
+              } else {
+                // El producto ya está en el carrito, se actualiza la cantidad
+                cart.products[productIndex].quantity += 1;
+              }
             }
+      
+            await fs.promises.writeFile(this.pathCart, JSON.stringify(carts));
+            return pid;
+          } else {
+            return null;
+          }
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
-    }
-
-    async deleteCartById(cid) {
-        try {
-            const cartsFile = await this.getCarts();
-            if (cartsFile.length > 0) {
-                const newArray = cartsFile.filter(crt => crt.cid !== cid);
-                await fs.promises.writeFile(this.pathCart, JSON.stringify(newArray));
-            } else {
-                throw new Error(`Cart with id: ${cid} not found`);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+      }
 }
